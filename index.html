@@ -14,7 +14,7 @@
             --code-bg: #1f242c;
             --code-text: #79c0ff;
             --explain-text: #8b949e;
-            --highlight: #d2a8ff; /* Màu cho phím tắt */
+            --highlight: #d2a8ff; 
         }
 
         body {
@@ -54,6 +54,7 @@
             font-size: 16px;
             box-sizing: border-box;
             outline: none;
+            transition: border-color 0.2s;
         }
 
         .search-box:focus {
@@ -161,7 +162,6 @@
             padding-bottom: 0;
         }
 
-        /* Style cho Command */
         code {
             font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
             background-color: var(--code-bg);
@@ -172,7 +172,6 @@
             font-weight: 600;
         }
 
-        /* Style cho phím tắt (Key) */
         .key {
             background-color: #2d333b;
             color: var(--highlight);
@@ -184,7 +183,6 @@
             font-weight: bold;
         }
 
-        /* Style cho phần giải thích */
         .desc {
             display: block;
             margin-top: 5px;
@@ -206,7 +204,7 @@
             white-space: nowrap;
         }
 
-        /* Ẩn các mục không khớp khi search */
+        /* Class để ẩn phần tử khi tìm kiếm */
         .hidden {
             display: none !important;
         }
@@ -228,7 +226,7 @@
 </div>
 
 <script>
-    // Dữ liệu gốc (Đã thêm Phần 11)
+    // Dữ liệu gốc
     const data = [
         {
             title: "PHẦN 1: HỆ THỐNG TẬP TIN (FILE SYSTEM)",
@@ -389,15 +387,12 @@
         {
             title: "PHẦN 11: HƯỚNG DẪN TRÌNH SOẠN THẢO (VI/VIM & NANO)",
             commands: [
-                // --- NANO ---
                 { cmd: "nano <file>", desc: "Mở file bằng Nano. Sử dụng phím mũi tên để di chuyển, gõ bình thường như Notepad." },
                 { cmd: "Ctrl + O -> Enter", desc: "(Trong Nano) Lưu file (Write Out)." },
                 { cmd: "Ctrl + X", desc: "(Trong Nano) Thoát. Nếu có thay đổi chưa lưu, nó sẽ hỏi Y/N." },
                 { cmd: "Ctrl + K", desc: "(Trong Nano) Cắt (Cut) toàn bộ dòng hiện tại." },
                 { cmd: "Ctrl + U", desc: "(Trong Nano) Dán (Paste) dòng vừa cắt." },
                 { cmd: "Ctrl + W", desc: "(Trong Nano) Tìm kiếm từ khóa (Where is)." },
-
-                // --- VI/VIM ---
                 { cmd: "vi <file>", desc: "Mở file bằng Vi/Vim. Mặc định sẽ ở chế độ Normal (không gõ được)." },
                 { cmd: "i", desc: "(Trong Vi) Chuyển sang chế độ Insert để bắt đầu gõ văn bản (hiện chữ -- INSERT --)." },
                 { cmd: "Esc", desc: "(Trong Vi) Thoát chế độ Insert, quay về chế độ Normal để ra lệnh." },
@@ -414,24 +409,22 @@
     ];
 
     const container = document.getElementById('cheatsheet-container');
+    const searchInput = document.getElementById('searchInput');
 
     // Hàm tạo HTML cho từng phần
     function renderData() {
         data.forEach((section, index) => {
-            // Tạo thẻ details cho Phần (Tầng 1)
             const mainDetails = document.createElement('details');
             mainDetails.className = 'main-section';
             
-            // Tạo summary cho Phần
             const mainSummary = document.createElement('summary');
             mainSummary.textContent = section.title;
             mainDetails.appendChild(mainSummary);
 
-            // Nội dung bên trong Phần
             const sectionContent = document.createElement('div');
             sectionContent.className = 'section-content';
 
-            // --- MỤC CON 1: CHỈ HIỆN LỆNH (Ưu tiên đầu tiên) ---
+            // --- MỤC CON 1: CHỈ HIỆN LỆNH ---
             const subDetailsOnly = document.createElement('details');
             subDetailsOnly.className = 'sub-section';
             subDetailsOnly.innerHTML = `<summary>⚡ Chỉ hiện lệnh (Tra cứu nhanh)</summary>`;
@@ -443,15 +436,12 @@
             
             section.commands.forEach(item => {
                 const li = document.createElement('li');
-                
-                // Xử lý hiển thị: Nếu là phím tắt thì bọc trong thẻ span class="key"
                 let cmdHTML = escapeHTML(item.cmd);
                 if (item.cmd.includes('Ctrl') || item.cmd === 'i' || item.cmd === 'Esc' || item.cmd === 'dd' || item.cmd === 'yy' || item.cmd === 'p' || item.cmd.startsWith(':')) {
                     cmdHTML = `<span class="key">${cmdHTML}</span>`;
                 } else {
                     cmdHTML = `<code>${cmdHTML}</code>`;
                 }
-
                 li.innerHTML = cmdHTML;
                 ulOnly.appendChild(li);
             });
@@ -471,15 +461,12 @@
             
             section.commands.forEach(item => {
                 const li = document.createElement('li');
-                
-                // Xử lý hiển thị giống mục 1
                 let cmdHTML = escapeHTML(item.cmd);
                 if (item.cmd.includes('Ctrl') || item.cmd === 'i' || item.cmd === 'Esc' || item.cmd === 'dd' || item.cmd === 'yy' || item.cmd === 'p' || item.cmd.startsWith(':')) {
                     cmdHTML = `<span class="key">${cmdHTML}</span>`;
                 } else {
                     cmdHTML = `<code>${cmdHTML}</code>`;
                 }
-
                 li.innerHTML = `
                     ${cmdHTML}
                     <span class="desc">${escapeHTML(item.desc)}</span>
@@ -491,7 +478,6 @@
             subDetailsFull.appendChild(fullContent);
             sectionContent.appendChild(subDetailsFull);
 
-            // Lắp ráp lại
             mainDetails.appendChild(sectionContent);
             container.appendChild(mainDetails);
 
@@ -505,7 +491,6 @@
         });
     }
 
-    // Hàm phụ trợ để tránh lỗi XSS
     function escapeHTML(str) {
         return str.replace(/[&<>'"]/g, 
             tag => ({
@@ -520,11 +505,27 @@
     // Khởi tạo giao diện
     renderData();
 
-    // --- CHỨC NĂNG TÌM KIẾM ---
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
+    // --- CHỨC NĂNG TÌM KIẾM (ĐÃ CẬP NHẬT) ---
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
         const mainSections = document.querySelectorAll('.main-section');
 
+        // NẾU Ô TÌM KIẾM TRỐNG: Reset toàn bộ về trạng thái ban đầu
+        if (searchTerm === '') {
+            mainSections.forEach(section => {
+                section.classList.remove('hidden');
+                section.removeAttribute('open'); // Đóng phần chính
+                
+                const listItems = section.querySelectorAll('li');
+                listItems.forEach(li => li.classList.remove('hidden')); // Hiện lại tất cả lệnh
+                
+                const subs = section.querySelectorAll('.sub-section');
+                subs.forEach(sub => sub.removeAttribute('open')); // Đóng các mục con
+            });
+            return; // Dừng hàm tại đây
+        }
+
+        // NẾU CÓ TỪ KHÓA: Thực hiện tìm kiếm như bình thường
         mainSections.forEach(section => {
             let sectionHasMatch = false;
             const listItems = section.querySelectorAll('li');
@@ -539,9 +540,12 @@
                 }
             });
 
+            // Nếu phần này có kết quả
             if (sectionHasMatch) {
                 section.classList.remove('hidden');
-                section.setAttribute('open', 'true'); 
+                section.setAttribute('open', 'true'); // Mở phần chính để thấy kết quả
+                
+                // Mở luôn các mục con để thấy rõ
                 const subs = section.querySelectorAll('.sub-section');
                 subs.forEach(sub => sub.setAttribute('open', 'true'));
             } else {
