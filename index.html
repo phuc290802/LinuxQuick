@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Cheat Sheet - Thực Chiến</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --border-color: #30363d;
+            --hover-bg: #161b22;
+            --code-bg: #1f242c;
+            --code-text: #79c0ff;
+            --explain-text: #8b949e;
+            --highlight: #d2a8ff; /* Màu cho phím tắt */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+        }
+
+        /* Cấu trúc Accordion Tầng 1 (Các Phần) */
+        details.main-section {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        details.main-section > summary {
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: var(--hover-bg);
+            color: #fff;
+            user-select: none;
+            list-style: none;
+            position: relative;
+        }
+
+        details.main-section > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.main-section > summary::before {
+            content: '▶';
+            color: var(--accent-color);
+            display: inline-block;
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+
+        details.main-section[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        .section-content {
+            padding: 15px;
+        }
+
+        /* Cấu trúc Accordion Tầng 2 (Mục con) */
+        details.sub-section {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background-color: #010409;
+        }
+
+        details.sub-section > summary {
+            padding: 10px 15px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-color);
+            user-select: none;
+            list-style: none;
+            display: flex;
+            align-items: center;
+        }
+
+        details.sub-section > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.sub-section > summary::before {
+            content: '+';
+            display: inline-block;
+            width: 20px;
+            color: var(--accent-color);
+            font-size: 18px;
+        }
+        
+        details.sub-section[open] > summary::before {
+            content: '−';
+        }
+
+        /* Nội dung bên trong mục con */
+        .sub-content {
+            padding: 10px 15px 15px 35px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 12px;
+            border-bottom: 1px dashed #21262d;
+            padding-bottom: 8px;
+        }
+
+        li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* Style cho Command */
+        code {
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Style cho phím tắt (Key) */
+        .key {
+            background-color: #2d333b;
+            color: var(--highlight);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #444c56;
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* Style cho phần giải thích */
+        .desc {
+            display: block;
+            margin-top: 5px;
+            color: var(--explain-text);
+            font-size: 14px;
+        }
+
+        .only-commands li {
+            margin-bottom: 8px;
+            border-bottom: none;
+            padding-bottom: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .only-commands code {
+            white-space: nowrap;
+        }
+
+        /* Ẩn các mục không khớp khi search */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🐧 Linux Cheat Sheet</h1>
+        <p>Tra cứu nhanh và Học tập</p>
+    </header>
+
+    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm lệnh (ví dụ: grep, chmod, ip...)">
+
+    <div id="cheatsheet-container">
+        <!-- Các phần sẽ được sinh ra bằng JavaScript ở đây -->
+    </div>
+</div>
+
+<script>
+    // Dữ liệu gốc (Đã thêm Phần 11)
+    const data = [
+        {
+            title: "PHẦN 1: HỆ THỐNG TẬP TIN (FILE SYSTEM)",
+            commands: [
+                { cmd: "pwd", desc: "In ra đường dẫn thư mục hiện tại đang đứng." },
+                { cmd: "ls", desc: "Liệt kê các file và thư mục." },
+                { cmd: "ls -l", desc: "Liệt kê chi tiết (quyền, chủ sở hữu, dung lượng, ngày tháng)." },
+                { cmd: "ls -a", desc: "Liệt kê tất cả (bao gồm cả file ẩn bắt đầu bằng dấu .)." },
+                { cmd: "ls -lh", desc: "Liệt kê chi tiết, dung lượng hiển thị dạng dễ đọc (KB, MB, GB)." },
+                { cmd: "cd <thư_mục>", desc: "Di chuyển vào thư mục." },
+                { cmd: "cd ..", desc: "Quay lại thư mục cha (lùi 1 cấp)." },
+                { cmd: "cd ~", desc: "Về thư mục home của user hiện tại." },
+                { cmd: "cd -", desc: "Quay lại thư mục vừa mới đứng trước đó." },
+                { cmd: "mkdir <tên>", desc: "Tạo thư mục mới." },
+                { cmd: "mkdir -p <a/b/c>", desc: "Tạo thư mục lồng nhau (tự động tạo các thư mục cha nếu chưa có)." },
+                { cmd: "rmdir <tên>", desc: "Xóa thư mục rỗng." },
+                { cmd: "rm <file>", desc: "Xóa file." },
+                { cmd: "rm -r <thư_mục>", desc: "Xóa thư mục và toàn bộ nội dung bên trong." },
+                { cmd: "rm -rf <thư_mục>", desc: "Xóa cưỡng bức (không hỏi lại, CẨN THẬN KẺO MẤT DỮ LIỆU)." },
+                { cmd: "cp <nguồn> <đích>", desc: "Copy file." },
+                { cmd: "cp -r <nguồn> <đích>", desc: "Copy toàn bộ thư mục." },
+                { cmd: "mv <nguồn> <đích>", desc: "Di chuyển file/thư mục. Mẹo: Dùng để đổi tên file (vd: mv a.txt b.txt)." },
+                { cmd: "touch <tên_file>", desc: "Tạo một file rỗng mới (hoặc cập nhật thời gian sửa đổi)." },
+                { cmd: "ln -s <nguồn> <đích>", desc: "Tạo liên kết mềm (giống shortcut trên Windows)." },
+                { cmd: "file <tên_file>", desc: "Kiểm tra xem file đó là định dạng gì (text, binary, image...)." }
+            ]
+        },
+        {
+            title: "PHẦN 2: ĐỌC VÀ TÌM KIẾM NỘI DUNG (VIEW & SEARCH)",
+            commands: [
+                { cmd: "cat <file>", desc: "Đọc toàn bộ nội dung file (chỉ dùng cho file ngắn)." },
+                { cmd: "less <file>", desc: "Đọc file dài (dùng phím mũi tên để cuộn, bấm q để thoát)." },
+                { cmd: "head -n <số> <file>", desc: "Đọc <số> dòng đầu tiên của file." },
+                { cmd: "tail -n <số> <file>", desc: "Đọc <số> dòng cuối cùng của file." },
+                { cmd: "tail -f <file>", desc: "Theo dõi file theo thời gian thực (rất hữu ích để xem log đang chạy)." },
+                { cmd: "grep \"<từ_khóa>\" <file>", desc: "Tìm dòng chứa từ khóa trong file." },
+                { cmd: "grep -i \"<từ_khóa>\" <file>", desc: "Tìm không phân biệt chữ hoa/chữ thường." },
+                { cmd: "grep -v \"<từ_khóa>\" <file>", desc: "Tìm các dòng KHÔNG chứa từ khóa." },
+                { cmd: "grep -r \"<từ_khóa>\" <thư_mục>", desc: "Tìm từ khóa bên trong tất cả các file của thư mục đó." },
+                { cmd: "find <thư_mục> -name \"<tên_file>\"", desc: "Tìm file theo tên (vd: find / -name \"*.conf\")." },
+                { cmd: "wc -l <file>", desc: "Đếm số dòng trong file." },
+                { cmd: "diff <file1> <file2>", desc: "So sánh sự khác biệt giữa 2 file." }
+            ]
+        },
+        {
+            title: "PHẦN 3: CHỈNH SỬA FILE & XỬ LÝ VĂN BẢN (EDITING)",
+            commands: [
+                { cmd: "nano <file>", desc: "Trình soạn thảo dễ dùng nhất (Lưu: Ctrl+O -> Enter, Thoát: Ctrl+X)." },
+                { cmd: "vi <file> hoặc vim <file>", desc: "Trình soạn thảo mặc định (Bấm i để sửa, Esc -> :wq để lưu & thoát, :q! để thoát không lưu)." },
+                { cmd: "echo \"nội_dung\"", desc: "In nội dung ra màn hình." },
+                { cmd: "echo \"nội_dung\" > <file>", desc: "Ghi đè nội dung vào file (xóa sạch nội dung cũ)." },
+                { cmd: "echo \"nội_dung\" >> <file>", desc: "Nối thêm nội dung vào cuối file." },
+                { cmd: "sed 's/cũ/mới/' <file>", desc: "Tìm và thay thế chữ (chỉ in ra màn hình, không sửa file)." },
+                { cmd: "sed -i 's/cũ/mới/g' <file>", desc: "Tìm và thay thế trực tiếp trong file (dùng sudo nếu là file hệ thống)." },
+                { cmd: "sort <file>", desc: "Sắp xếp nội dung file theo bảng chữ cái." },
+                { cmd: "uniq <file>", desc: "Loại bỏ các dòng trùng lặp liền kề." }
+            ]
+        },
+        {
+            title: "PHẦN 4: QUẢN LÝ TIẾN TRÌNH (PROCESSES)",
+            commands: [
+                { cmd: "ps aux", desc: "Liệt kê tất cả các tiến trình đang chạy trên hệ thống." },
+                { cmd: "top", desc: "Xem các tiến trình đang chạy và tài nguyên tiêu tốn (CPU, RAM) theo thời gian thực (bấm q để thoát)." },
+                { cmd: "htop", desc: "Giống top nhưng giao diện đẹp và dễ nhìn hơn (có thể phải cài thêm)." },
+                { cmd: "kill <PID>", desc: "Tắt một tiến trình dựa vào ID (PID)." },
+                { cmd: "kill -9 <PID>", desc: "Tắt cưỡng bức tiến trình (khi lệnh kill thường không ăn)." },
+                { cmd: "pkill <tên_tiến_trình>", desc: "Tắt tiến trình theo tên (vd: pkill nginx)." },
+                { cmd: "killall <tên_tiến_trình>", desc: "Tắt tất cả các tiến trình cùng tên." },
+                { cmd: "bg", desc: "Đưa tiến trình đang tạm dừng chạy ngầm dưới nền." },
+                { cmd: "fg", desc: "Đưa tiến trình chạy ngầm ra lại foreground (màn hình chính)." }
+            ]
+        },
+        {
+            title: "PHẦN 5: QUẢN LÝ GÓI PHẦN MỀM (PACKAGES)",
+            commands: [
+                { cmd: "apt update", desc: "Cập nhật danh sách gói từ kho (nên chạy trước khi cài)." },
+                { cmd: "apt upgrade", desc: "Nâng cấp các gói đã cài lên bản mới nhất." },
+                { cmd: "apt install <tên_gói>", desc: "Cài đặt phần mềm." },
+                { cmd: "apt remove <tên_gói>", desc: "Gỡ cài đặt." },
+                { cmd: "apt purge <tên_gói>", desc: "Gỡ cài đặt và xóa luôn cả file cấu hình." },
+                { cmd: "apt search <từ_khóa>", desc: "Tìm kiếm gói phần mềm." },
+                { cmd: "apt show <tên_gói>", desc: "Xem thông tin chi tiết của gói." },
+                { cmd: "dpkg -l", desc: "Liệt kê tất cả các gói đã cài đặt." }
+            ]
+        },
+        {
+            title: "PHẦN 6: QUẢN LÝ NGƯỜI DÙNG VÀ QUYỀN (USERS & PERMISSIONS)",
+            commands: [
+                { cmd: "whoami", desc: "Xem user hiện tại đang đăng nhập là ai." },
+                { cmd: "id", desc: "Xem UID, GID và các nhóm của user hiện tại." },
+                { cmd: "sudo <lệnh>", desc: "Chạy lệnh với quyền root (quyền cao nhất)." },
+                { cmd: "su - <user>", desc: "Đăng nhập sang user khác (vd: su - root)." },
+                { cmd: "passwd <user>", desc: "Đổi mật khẩu cho user." },
+                { cmd: "useradd <user>", desc: "Tạo user mới." },
+                { cmd: "usermod -aG <nhóm> <user>", desc: "Thêm user vào một nhóm (vd: thêm vào nhóm sudo)." },
+                { cmd: "groupadd <tên_nhóm>", desc: "Tạo nhóm mới." },
+                { cmd: "chmod <quyền> <file>", desc: "Đổi quyền truy cập file. Dạng số: chmod 755 file (Owner: đọc/ghi/chạy, Group/Other: đọc/chạy). Dạng chữ: chmod +x script.sh (Thêm quyền chạy), chmod -w file (Bỏ quyền ghi)." },
+                { cmd: "chown <user>:<nhóm> <file>", desc: "Đổi chủ sở hữu file." },
+                { cmd: "umask", desc: "Xem thiết lập quyền mặc định khi tạo file mới." }
+            ]
+        },
+        {
+            title: "PHẦN 7: MẠNG (NETWORKING)",
+            commands: [
+                { cmd: "ip a (hoặc ip addr)", desc: "Xem địa chỉ IP của các card mạng." },
+                { cmd: "ip route", desc: "Xem bảng định tuyến (xem Default Gateway)." },
+                { cmd: "ip link set <card_mạng> up/down", desc: "Bật/tắt card mạng." },
+                { cmd: "ping <ip/tên_miền>", desc: "Kiểm tra kết nối mạng cơ bản." },
+                { cmd: "traceroute <ip/tên_miền>", desc: "Kiểm tra đường đi của gói tin (phải cài traceroute)." },
+                { cmd: "ss -tulnp", desc: "Xem các cổng (port) đang mở, giao thức (TCP/UDP) và tiến trình tương ứng." },
+                { cmd: "netstat -tulnp", desc: "Tương tự ss (cũ hơn, có thể phải cài net-tools)." },
+                { cmd: "curl <url>", desc: "Gửi request đến một trang web (kiểm tra xem web có chạy không, hoặc tải file)." },
+                { cmd: "wget <url>", desc: "Tải file từ internet về máy." },
+                { cmd: "cat /etc/resolv.conf", desc: "Xem DNS Server hiện tại." },
+                { cmd: "cat /etc/hosts", desc: "Xem file phân giải tên miền nội bộ." }
+            ]
+        },
+        {
+            title: "PHẦN 8: QUẢN LÝ DỊCH VỤ (SYSTEMD)",
+            commands: [
+                { cmd: "systemctl status <dịch_vụ>", desc: "Xem trạng thái dịch vụ (đang chạy, đã chết, lỗi gì)." },
+                { cmd: "systemctl start <dịch_vụ>", desc: "Bật dịch vụ." },
+                { cmd: "systemctl stop <dịch_vụ>", desc: "Tắt dịch vụ." },
+                { cmd: "systemctl restart <dịch_vụ>", desc: "Khởi động lại (thường dùng sau khi sửa file cấu hình)." },
+                { cmd: "systemctl reload <dịch_vụ>", desc: "Nạp lại cấu hình mà không ngắt kết nối (nếu dịch vụ hỗ trợ)." },
+                { cmd: "systemctl enable <dịch_vụ>", desc: "Cho dịch vụ tự khởi động cùng hệ điều hành." },
+                { cmd: "systemctl disable <dịch_vụ>", desc: "Không cho tự khởi động." },
+                { cmd: "systemctl list-units --type=service", desc: "Liệt kê tất cả các dịch vụ." }
+            ]
+        },
+        {
+            title: "PHẦN 9: LƯU TRỮ VÀ NÉN (STORAGE & ARCHIVE)",
+            commands: [
+                { cmd: "df -h", desc: "Xem dung lượng của các ổ đĩa (ổ nào đầy, còn bao nhiêu trống)." },
+                { cmd: "du -sh <thư_mục>", desc: "Xem dung lượng của một thư mục cụ thể." },
+                { cmd: "lsblk", desc: "Liệt kê các ổ đĩa và phân vùng (block devices)." },
+                { cmd: "mount", desc: "Xem các ổ đĩa đang được gắn vào hệ thống." },
+                { cmd: "tar -czvf <tên_file.tar.gz> <thư_mục>", desc: "Nén thư mục thành file .tar.gz." },
+                { cmd: "tar -xzvf <tên_file.tar.gz>", desc: "Giải nén file .tar.gz." },
+                { cmd: "zip -r <tên_file.zip> <thư_mục>", desc: "Nén thành file .zip." },
+                { cmd: "unzip <tên_file.zip>", desc: "Giải nén file .zip." }
+            ]
+        },
+        {
+            title: "PHẦN 10: LỆNH HỆ THỐNG VÀ TRỢ GIÚP (SYSTEM & HELP)",
+            commands: [
+                { cmd: "man <tên_lệnh>", desc: "Mở sách hướng dẫn sử dụng lệnh (bấm q để thoát)." },
+                { cmd: "<tên_lệnh> --help", desc: "Xem hướng dẫn nhanh của lệnh đó." },
+                { cmd: "history", desc: "Xem lại lịch sử các lệnh bạn đã gõ." },
+                { cmd: "clear", desc: "Xóa sạch màn hình terminal." },
+                { cmd: "date", desc: "Xem ngày giờ hệ thống." },
+                { cmd: "uptime", desc: "Xem hệ thống đã chạy liên tục bao lâu và tải trung bình." },
+                { cmd: "reboot", desc: "Khởi động lại máy." },
+                { cmd: "shutdown -h now", desc: "Tắt máy ngay lập tức." },
+                { cmd: "exit", desc: "Thoát khỏi terminal hoặc đăng xuất user hiện tại." }
+            ]
+        },
+        {
+            title: "PHẦN 11: HƯỚNG DẪN TRÌNH SOẠN THẢO (VI/VIM & NANO)",
+            commands: [
+                // --- NANO ---
+                { cmd: "nano <file>", desc: "Mở file bằng Nano. Sử dụng phím mũi tên để di chuyển, gõ bình thường như Notepad." },
+                { cmd: "Ctrl + O -> Enter", desc: "(Trong Nano) Lưu file (Write Out)." },
+                { cmd: "Ctrl + X", desc: "(Trong Nano) Thoát. Nếu có thay đổi chưa lưu, nó sẽ hỏi Y/N." },
+                { cmd: "Ctrl + K", desc: "(Trong Nano) Cắt (Cut) toàn bộ dòng hiện tại." },
+                { cmd: "Ctrl + U", desc: "(Trong Nano) Dán (Paste) dòng vừa cắt." },
+                { cmd: "Ctrl + W", desc: "(Trong Nano) Tìm kiếm từ khóa (Where is)." },
+
+                // --- VI/VIM ---
+                { cmd: "vi <file>", desc: "Mở file bằng Vi/Vim. Mặc định sẽ ở chế độ Normal (không gõ được)." },
+                { cmd: "i", desc: "(Trong Vi) Chuyển sang chế độ Insert để bắt đầu gõ văn bản (hiện chữ -- INSERT --)." },
+                { cmd: "Esc", desc: "(Trong Vi) Thoát chế độ Insert, quay về chế độ Normal để ra lệnh." },
+                { cmd: ":w -> Enter", desc: "(Trong Vi - chế độ Normal) Lưu file (Write)." },
+                { cmd: ":q -> Enter", desc: "(Trong Vi - chế độ Normal) Thoát (Quit). Sẽ báo lỗi nếu chưa lưu." },
+                { cmd: ":wq -> Enter", desc: "(Trong Vi - chế độ Normal) Lưu và Thoát (Write & Quit)." },
+                { cmd: ":q! -> Enter", desc: "(Trong Vi - chế độ Normal) Thoát KHÔNG lưu (Force Quit). Dùng khi lỡ sửa linh tinh." },
+                { cmd: "dd", desc: "(Trong Vi - chế độ Normal) Xóa (cắt) toàn bộ dòng hiện tại." },
+                { cmd: "yy", desc: "(Trong Vi - chế độ Normal) Copy (Yank) toàn bộ dòng hiện tại." },
+                { cmd: "p", desc: "(Trong Vi - chế độ Normal) Dán (Paste) nội dung vừa copy/xóa xuống dưới." },
+                { cmd: "/<từ_khóa> -> Enter", desc: "(Trong Vi - chế độ Normal) Tìm kiếm từ khóa. Bấm 'n' để tìm tiếp." }
+            ]
+        }
+    ];
+
+    const container = document.getElementById('cheatsheet-container');
+
+    // Hàm tạo HTML cho từng phần
+    function renderData() {
+        data.forEach((section, index) => {
+            // Tạo thẻ details cho Phần (Tầng 1)
+            const mainDetails = document.createElement('details');
+            mainDetails.className = 'main-section';
+            
+            // Tạo summary cho Phần
+            const mainSummary = document.createElement('summary');
+            mainSummary.textContent = section.title;
+            mainDetails.appendChild(mainSummary);
+
+            // Nội dung bên trong Phần
+            const sectionContent = document.createElement('div');
+            sectionContent.className = 'section-content';
+
+            // --- MỤC CON 1: CHỈ HIỆN LỆNH (Ưu tiên đầu tiên) ---
+            const subDetailsOnly = document.createElement('details');
+            subDetailsOnly.className = 'sub-section';
+            subDetailsOnly.innerHTML = `<summary>⚡ Chỉ hiện lệnh (Tra cứu nhanh)</summary>`;
+            
+            const onlyContent = document.createElement('div');
+            onlyContent.className = 'sub-content';
+            const ulOnly = document.createElement('ul');
+            ulOnly.className = 'only-commands';
+            
+            section.commands.forEach(item => {
+                const li = document.createElement('li');
+                
+                // Xử lý hiển thị: Nếu là phím tắt thì bọc trong thẻ span class="key"
+                let cmdHTML = escapeHTML(item.cmd);
+                if (item.cmd.includes('Ctrl') || item.cmd === 'i' || item.cmd === 'Esc' || item.cmd === 'dd' || item.cmd === 'yy' || item.cmd === 'p' || item.cmd.startsWith(':')) {
+                    cmdHTML = `<span class="key">${cmdHTML}</span>`;
+                } else {
+                    cmdHTML = `<code>${cmdHTML}</code>`;
+                }
+
+                li.innerHTML = cmdHTML;
+                ulOnly.appendChild(li);
+            });
+            
+            onlyContent.appendChild(ulOnly);
+            subDetailsOnly.appendChild(onlyContent);
+            sectionContent.appendChild(subDetailsOnly);
+
+            // --- MỤC CON 2: HIỆN LỆNH + GIẢI THÍCH ---
+            const subDetailsFull = document.createElement('details');
+            subDetailsFull.className = 'sub-section';
+            subDetailsFull.innerHTML = `<summary>📖 Hiện lệnh + Giải thích (Học tập)</summary>`;
+            
+            const fullContent = document.createElement('div');
+            fullContent.className = 'sub-content';
+            const ulFull = document.createElement('ul');
+            
+            section.commands.forEach(item => {
+                const li = document.createElement('li');
+                
+                // Xử lý hiển thị giống mục 1
+                let cmdHTML = escapeHTML(item.cmd);
+                if (item.cmd.includes('Ctrl') || item.cmd === 'i' || item.cmd === 'Esc' || item.cmd === 'dd' || item.cmd === 'yy' || item.cmd === 'p' || item.cmd.startsWith(':')) {
+                    cmdHTML = `<span class="key">${cmdHTML}</span>`;
+                } else {
+                    cmdHTML = `<code>${cmdHTML}</code>`;
+                }
+
+                li.innerHTML = `
+                    ${cmdHTML}
+                    <span class="desc">${escapeHTML(item.desc)}</span>
+                `;
+                ulFull.appendChild(li);
+            });
+            
+            fullContent.appendChild(ulFull);
+            subDetailsFull.appendChild(fullContent);
+            sectionContent.appendChild(subDetailsFull);
+
+            // Lắp ráp lại
+            mainDetails.appendChild(sectionContent);
+            container.appendChild(mainDetails);
+
+            // Tính năng: Tự động đóng mục con khi đóng phần
+            mainDetails.addEventListener('toggle', function() {
+                if (!this.open) {
+                    const subSections = this.querySelectorAll('.sub-section');
+                    subSections.forEach(sub => sub.removeAttribute('open'));
+                }
+            });
+        });
+    }
+
+    // Hàm phụ trợ để tránh lỗi XSS
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag]));
+    }
+
+    // Khởi tạo giao diện
+    renderData();
+
+    // --- CHỨC NĂNG TÌM KIẾM ---
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const mainSections = document.querySelectorAll('.main-section');
+
+        mainSections.forEach(section => {
+            let sectionHasMatch = false;
+            const listItems = section.querySelectorAll('li');
+
+            listItems.forEach(li => {
+                const text = li.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    li.classList.remove('hidden');
+                    sectionHasMatch = true;
+                } else {
+                    li.classList.add('hidden');
+                }
+            });
+
+            if (sectionHasMatch) {
+                section.classList.remove('hidden');
+                section.setAttribute('open', 'true'); 
+                const subs = section.querySelectorAll('.sub-section');
+                subs.forEach(sub => sub.setAttribute('open', 'true'));
+            } else {
+                section.classList.add('hidden');
+                section.removeAttribute('open');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
